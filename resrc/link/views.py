@@ -184,7 +184,6 @@ def new_link(request, title=None, url=None):
                 )
 
             from resrc.list.tasks import regenerate_list
-            print "sendtask"
             regenerate_list.delay(alist.pk)
 
             data = simplejson.dumps({'result': 'added'})

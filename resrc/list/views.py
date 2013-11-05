@@ -215,7 +215,6 @@ def new_list(request):
             except Language.DoesNotExist:
                 lang = Language.objects.create(language=form.data['language'])
 
-            from resrc.utils.templatetags.emarkdown import listmarkdown
             alist = List.objects.create(
                 title=form.data['title'],
                 description=form.data['description'],
@@ -226,8 +225,10 @@ def new_list(request):
                 is_public=not is_private,
                 language=lang,
             )
-            alist.html_content = listmarkdown(mdcontent, alist)
             alist.save()
+
+            from resrc.list.tasks import regenerate_list
+            regenerate_list.delay(alist.pk)
 
             return redirect(alist.get_absolute_url())
     else:
@@ -276,8 +277,6 @@ def edit(request, list_pk):
             else:
                 mdcontent = form.data['mdcontent']
 
-            from resrc.utils.templatetags.emarkdown import listmarkdown
-
             from resrc.language.models import Language
             try:
                 lang = Language.objects.get(language=form.data['language'])
@@ -293,8 +292,8 @@ def edit(request, list_pk):
             alist.language = lang
             alist.save()
             # once saved, we parse the markdown to add links found to list
-            alist.html_content = listmarkdown(mdcontent, alist)
-            alist.save()
+            from resrc.list.tasks import regenerate_list
+            regenerate_list.delay(alist.pk)
 
             return redirect(alist.get_absolute_url())
 
@@ -327,11 +326,10 @@ def auto_pull(request, list_pk):
 
 
     alist.md_content = mdcontent
-    alist.html_content = ''
-
-    from resrc.utils.templatetags.emarkdown import listmarkdown
-    alist.html_content = listmarkdown(mdcontent, alist)
     alist.save()
+
+    from resrc.list.tasks import regenerate_list
+    regenerate_list.delay(alist.pk)
 
     return redirect(alist.get_absolute_url())
 
