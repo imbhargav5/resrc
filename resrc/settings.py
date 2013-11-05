@@ -2,7 +2,7 @@
 import os
 
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -157,7 +157,8 @@ EXTERNAL_APPS = [
     'mptt',
     'mptt_comments',
     'floppyforms',
-    'taggit'
+    'taggit',
+    'djcelery',
 ]
 
 INTERNAL_APPS = [
@@ -229,6 +230,9 @@ LOGIN_URL = '/user/login'
 ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: '/user/user/{0}'.format(u.username)
 }
+
+import djcelery
+djcelery.setup_loader()
 
 # Load the production settings, overwrite the existing ones if needed
 try:

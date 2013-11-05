@@ -182,9 +182,10 @@ def new_link(request, title=None, url=None):
                     alist=alist,
                     links=link
                 )
-            from resrc.utils.templatetags.emarkdown import listmarkdown
-            alist.html_content = listmarkdown(alist.md_content, alist)
-            alist.save()
+
+            from resrc.list.tasks import regenerate_list
+            print "sendtask"
+            regenerate_list.delay(alist.pk)
 
             data = simplejson.dumps({'result': 'added'})
             return HttpResponse(data, mimetype="application/javascript")

@@ -20,3 +20,4 @@ django-storages
 -e git://github.com/vhf/django-mptt-comments.git@master#egg=django-mptt-comments
 python-memcached
 psycopg2
+django-celery
